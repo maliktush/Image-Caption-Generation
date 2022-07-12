@@ -1,0 +1,96 @@
+<html>
+    <head>
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+      <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+        <title>Cloud ML Project</title>
+    </head>
+    <body>
+      <h1 style="text-align: center;color:#16a085;">Image Caption Generator</h1>
+      <form id="upload-file" method="POST" enctype = "multipart/form-data">
+
+        <input type="file" name="file" class="file-input" multiple>
+        <p>Drop your image here or click in this area.</p>
+        <button type="submit" id="upload-file-btn" style="width: 48%;margin-right: 10px;">Annotate</button>
+        <button type="submit" id="visu-file-btn" style="width: 48%;margin-left: 10px;">Visualize</button>
+        <div id="divImageMediaPreview"> </div>
+        <h2 id="result" style="color:yellow;text-align: center;width: 475px;"></h2>
+        
+
+      </form>
+      <img id="image_id" class="center2">
+    </body>
+    <script>
+      $(document).on('change', '.file-input', function() {
+        if (typeof (FileReader) != "undefined") {
+        var dvPreview = $("#divImageMediaPreview");
+        dvPreview.html("");
+        $($(this)[0].files).each(function () {
+        var file = $(this);
+        var reader = new FileReader();
+        reader.onload = function (e) {
+        var img = $("<img />");
+        img.attr("style", "width: 475px; height:300px; padding: 10px");
+        img.attr("src", e.target.result);
+        dvPreview.append(img);
+        }
+        reader.readAsDataURL(file[0]);
+        });
+        } else {
+        alert("This browser does not support HTML5 FileReader.");
+        }
+        
+        
+        });
+
+
+    let form = document.querySelector("#upload-file-btn");
+        form.addEventListener("click", e => {
+            e.preventDefault();
+            document.getElementById("result").innerHTML = "";
+            document.getElementById("image_id").style.display='none'
+            var formdata = new FormData($('#upload-file')[0]);
+            $.ajax({
+                url: "/upload",
+                method: "POST",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                cache: false,
+                contentType: 'application/json',
+                enctype: 'multipart/form-data',
+                success: function(data) {
+                    
+                    data = JSON.parse(data)
+                    console.log(data['result'])
+                    document.getElementById("result").innerHTML = data['success'];
+                },
+                contentType: false,
+            });
+        })
+
+        let form2 = document.querySelector("#visu-file-btn");
+        form2.addEventListener("click", e => {
+            e.preventDefault();
+            var formdata = new FormData($('#upload-file')[0]);
+            $.ajax({
+                url: "/visualize",
+                method: "POST",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                cache: false,
+                contentType: 'application/json',
+                enctype: 'multipart/form-data',
+                success: function(data) {
+                    
+                    data = JSON.parse(data)
+                    console.log(data['result'])
+                    document.getElementById("result").innerHTML = data['success'];
+                    document.getElementById("image_id").src = 'data:image/png;base64,' + data['img'];
+                    document.getElementById("image_id").style.display='block'
+                },
+                contentType: false,
+            });
+        })
+    </script>
+</html>

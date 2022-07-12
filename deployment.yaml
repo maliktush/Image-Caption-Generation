@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: image-caption-generator-app-2
+    env: qa
+  name: image-caption-generator-app-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-caption-generator-app-2
+  template:
+    metadata:
+      labels:
+        app: image-caption-generator-app-2
+        env: qa
+    spec:
+      containers:
+      - image: ath08/image_caption_generator:v2
+        imagePullPolicy: Always
+        name: image-caption-generator-api-2
+        command: ["python3", "main.py" ]
+        ports:
+        - containerPort: 5000
+          protocol: TCP
